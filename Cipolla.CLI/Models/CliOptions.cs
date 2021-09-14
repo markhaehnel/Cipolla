@@ -13,9 +13,6 @@ namespace Cipolla.CLI.Models
         [Option('p', "socks-port", Default = (ushort)9250, HelpText = "Starting port number for socks port")]
         public ushort StartingSocksPort { get; set; }
 
-        [Option('c', "control-port", Default = (ushort)9350, HelpText = "Starting port number for control port")]
-        public ushort StartingControlPort { get; set; }
-
         [Option('d', "data-directory", HelpText = "Starting port number for control port")]
         public string DataDirectory { get; set; } = Path.Combine(Path.GetTempPath(), "Cipolla");
     }

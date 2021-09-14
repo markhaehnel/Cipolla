@@ -1,12 +1,13 @@
 using System;
 using System.Diagnostics;
 using System.Threading.Tasks;
+using Microsoft.Extensions.Logging;
 
 namespace Cipolla.CLI.Utils
 {
     public static class ProcessAsyncHelper
     {
-        public static Task StartProcessAsync(string command, string arguments, string workingDir)
+        public static Task StartProcessAsync(string command, string arguments, string workingDir, ILogger logger)
         {
             using var process = new Process();
 
@@ -20,17 +21,17 @@ namespace Cipolla.CLI.Utils
 
             process.OutputDataReceived += (sender, e) =>
             {
-                if (!string.IsNullOrEmpty(e.Data)) Console.WriteLine(e.Data);
+                if (!string.IsNullOrEmpty(e.Data)) logger.LogInformation(e.Data);
             };
 
             process.ErrorDataReceived += (sender, e) =>
             {
-                if (!string.IsNullOrEmpty(e.Data)) Console.WriteLine(e.Data);
+                if (!string.IsNullOrEmpty(e.Data)) logger.LogError(e.Data);
             };
 
             process.Exited += (sender, e) =>
             {
-                Console.WriteLine("Exited {0} (Code: {1})", process.Id, process.ExitCode);
+                logger.LogInformation("Exited {0} (Code: {1})", process.Id, process.ExitCode);
             };
 
             process.Start();

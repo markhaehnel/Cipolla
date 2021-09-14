@@ -1,4 +1,7 @@
 using System;
+using System.Collections.Generic;
+using System.IO;
+using System.Linq;
 using System.Threading;
 using System.Threading.Tasks;
 using Cipolla.CLI.Models;
@@ -13,6 +16,8 @@ namespace Cipolla.CLI.Services
         private readonly ILogger<TorInstanceManagerWorker> _logger;
         private readonly CliOptions _options;
 
+        private readonly List<TorInstance> _instances = new();
+
         public TorInstanceManagerWorker(ILogger<TorInstanceManagerWorker> logger, CliOptions options)
         {
             _logger = logger;
@@ -25,7 +30,12 @@ namespace Cipolla.CLI.Services
 
             while (!cancellationToken.IsCancellationRequested)
             {
-                _logger.LogInformation("Looping..");
+                _logger.LogInformation("Checking for missing instances..");
+                _instances.AddRange(CreateMissingTorInstances());
+
+                _logger.LogInformation("Checking for stopped instances..");
+                _instances.RemoveAll(x => !x.Task.Status.Equals(TaskStatus.Running));
+
                 await Task.Delay(TimeSpan.FromSeconds(5), cancellationToken);
             }
 
@@ -36,7 +46,17 @@ namespace Cipolla.CLI.Services
         {
             _logger.LogInformation("Cleaning up..");
             base.StopAsync(cancellationToken);
+
+            Directory.Delete(_options.DataDirectory, true);
             return Task.CompletedTask;
+        }
+
+        private IEnumerable<TorInstance> CreateMissingTorInstances()
+        {
+            var possiblePorts = Enumerable.Range(_options.StartingSocksPort, _options.NumberOfInstances).Select(i => (ushort)i);
+            var usedPorts = _instances.Select(x => x.SocksPort);
+            var freePorts = possiblePorts.Where(x => !usedPorts.Contains(x));
+            return freePorts.Select(port => new TorInstance(port, (ushort)(port + 100), _options.DataDirectory, _logger));
         }
     }
 }
