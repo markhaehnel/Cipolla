@@ -41,6 +41,39 @@ On Windows, first download the `Windows Export Bundle` from the [Tor Website](ht
 
 Then download the [pre-built binaries](https://github.com/markhaehnel/Cipolla/releases).
 
+## Usage
+
+```bash
+# Run with default values (10 proxies listening on port 9250 to 9259)
+./cipolla
+```
+
+```bash
+# Something not working? Run in verbose mode to get information to debug your issue
+./cipolla -v
+```
+
+All options:
+
+```
+cipolla 0.1.0
+Copyright (C) 2021 cipolla
+
+  -n, --num-instances     (Default: 10) Number of Tor instances to launch
+
+  -p, --socks-port        (Default: 9250) Starting port number for socks port
+
+  -d, --data-directory    Starting port number for control port
+
+  -i, --interval          (Default: 30) Instance check interval in seconds
+
+  -v, --verbose           (Default: false) Makes logging output more verbose
+
+  --help                  Display this help screen.
+
+  --version               Display version information.
+```
+
 ## Contributing
 
 Pull requests are welcome. For major changes, please open an issue first to discuss what you would like to change.
