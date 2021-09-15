@@ -30,7 +30,6 @@ On macOS, first `tor` using [Homebrew](https://brew.sh/) or [MacPorts](https://w
 brew install
     -or-
 sudo port install tor
-
 ```
 
 Then download the [pre-built binaries](https://github.com/markhaehnel/Cipolla/releases).
