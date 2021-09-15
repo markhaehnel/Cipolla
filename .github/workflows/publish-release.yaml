@@ -1,11 +1,13 @@
-name: CI
+name: Publish Release
 
 on:
     push:
         tags:
             - "*.*.*"
 
-strategy:
+jobs:
+    publish-release:
+    strategy:
     matrix:
         targets:
             [
@@ -19,9 +21,6 @@ strategy:
                 "win-arm",
                 "win-arm64",
             ]
-
-jobs:
-    publish-release:
         runs-on: ubuntu-latest
         steps:
             - name: Checkout
