@@ -1,0 +1,54 @@
+name: CI
+
+on:
+    push:
+        tags:
+            - "*.*.*"
+
+strategy:
+    matrix:
+        targets:
+            [
+                "linux-x64",
+                "linux-musl-x64",
+                "linux-arm",
+                "linux-arm64",
+                "osx-x64",
+                "win-x64",
+                "win-x86",
+                "win-arm",
+                "win-arm64",
+            ]
+
+jobs:
+    publish-release:
+        runs-on: ubuntu-latest
+        steps:
+            - name: Checkout
+              uses: actions/checkout@v1
+            - name: Set up .NET Core
+              uses: actions/setup-dotnet@v1
+              with:
+                  dotnet-version: "5.0.400"
+            - name: Extract version from Git
+              run: echo "release_version=$(git describe)" >> $GITHUB_ENV
+            - name: Publish .NET app
+              env:
+                  RID: ${{ matrix.targets }}
+              run: dotnet publish -c Release -r $RID --self-contained true -p:PublishSingleFile=true -p:Version=${{ env.release_version }} Cipolla.CLI/Cipolla.CLI.csproj
+            - name: Package assets
+              env:
+                  RID: ${{ matrix.targets }}
+                  RELEASEVERSION: ${{ env.release_version }}
+              run: zip -j "Cipolla.CLI/bin/cipolla-$RELEASEVERSION-$RID.zip" Cipolla.CLI/bin/Release/net5.0/$RID/publish/* -x "*.pdb"
+            - name: Upload artifacts
+              uses: actions/upload-artifact@v2
+              with:
+                  name: cipolla-${{ env.release_version }}-${{ matrix.targets }}
+                  path: "Cipolla.CLI/bin/cipolla-${{ env.release_version }}-${{ matrix.targets }}.zip"
+                  - name: Release
+            # - name: Release
+            #     uses: softprops/action-gh-release@v1
+            #     if: startsWith(github.ref, 'refs/tags/')
+            #     with:
+            #       files: Cipolla.CLI/bin/*.zip
