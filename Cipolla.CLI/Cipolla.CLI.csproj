@@ -6,7 +6,6 @@
         <CheckForOverflowUnderflow>true</CheckForOverflowUnderflow>
         <Nullable>enable</Nullable>
         <AssemblyName>cipolla</AssemblyName>
-        <PublishSingleFile>true</PublishSingleFile>
         <PublishTrimmed>true</PublishTrimmed>
     </PropertyGroup>
 
