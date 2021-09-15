@@ -24,7 +24,7 @@ jobs:
 
     build:
         name: Build release artifacts
-        needs: extract-version
+        needs: extract_version
         runs-on: ubuntu-latest
         strategy:
             matrix:
