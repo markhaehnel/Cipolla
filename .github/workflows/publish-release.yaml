@@ -46,7 +46,7 @@ jobs:
                   name: cipolla-${{ env.release_version }}-${{ matrix.targets }}.zip
                   path: "Cipolla.CLI/bin/cipolla-${{ env.release_version }}-${{ matrix.targets }}.zip"
             - name: Release
-                uses: softprops/action-gh-release@v1
-                if: startsWith(github.ref, 'refs/tags/')
-                with:
+              uses: softprops/action-gh-release@v1
+              if: startsWith(github.ref, 'refs/tags/')
+              with:
                   files: Cipolla.CLI/bin/*.zip
