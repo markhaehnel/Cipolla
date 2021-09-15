@@ -14,10 +14,6 @@ jobs:
         steps:
             - name: Checkout
               uses: actions/checkout@v1
-            - name: Set up .NET Core
-              uses: actions/setup-dotnet@v1
-              with:
-                  dotnet-version: "5.0.400"
             - name: Extract version from Git
               id: extractversion
               run: echo "::set-output name=version::$(git describe)"
@@ -41,6 +37,12 @@ jobs:
                         "win-arm64",
                     ]
         steps:
+            - name: Checkout
+              uses: actions/checkout@v1
+            - name: Set up .NET Core
+              uses: actions/setup-dotnet@v1
+              with:
+                  dotnet-version: "5.0.400"
             - name: Publish .NET app
               env:
                   RID: ${{ matrix.targets }}
