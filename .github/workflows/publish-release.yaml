@@ -6,7 +6,7 @@ on:
             - "*.*.*"
 
 jobs:
-    extract_version:
+    extractversion:
         name: Extract version
         runs-on: ubuntu-latest
         outputs:
@@ -20,7 +20,7 @@ jobs:
 
     build:
         name: Build release artifacts
-        needs: extract_version
+        needs: extractversion
         runs-on: ubuntu-latest
         strategy:
             matrix:
@@ -46,20 +46,20 @@ jobs:
             - name: Publish .NET app
               env:
                   RID: ${{ matrix.targets }}
-                  VERSION: ${{ needs.extract_version.outputs.version }}
+                  VERSION: ${{ needs.extractversion.outputs.version }}
               run: dotnet publish -c Release -r $RID --self-contained true -p:PublishSingleFile=true -p:Version=$VERSION Cipolla.CLI/Cipolla.CLI.csproj
             - name: Package assets
               env:
                   RID: ${{ matrix.targets }}
-                  VERSION: ${{ needs.setup.outputs.version }}
+                  VERSION: ${{ needs.extractversion.outputs.version }}
               run: |
                   mkdir .artifacts
                   zip -j ".artifacts/cipolla-$VERSION-$RID.zip" Cipolla.CLI/bin/Release/net5.0/$RID/publish/* -x "*.pdb"
             - name: Upload artifacts
               uses: actions/upload-artifact@v2
               with:
-                  name: cipolla-${{ env.release_version }}-${{ matrix.targets }}.zip
-                  path: "Cipolla.CLI/bin/cipolla-${{ env.release_version }}-${{ matrix.targets }}.zip"
+                  name: cipolla-${{ needs.extractversion.outputs.version }}-${{ matrix.targets }}.zip
+                  path: "Cipolla.CLI/bin/cipolla-${{ needs.extractversion.outputs.version }}-${{ matrix.targets }}.zip"
 
     publish:
         name: Publish release
