@@ -1,4 +1,4 @@
-name: Publish Release
+name: Publish Release from Tag
 
 on:
     push:
@@ -6,7 +6,26 @@ on:
             - "*.*.*"
 
 jobs:
-    publish-release:
+    extract_version:
+        name: Extract version
+        runs-on: ubuntu-latest
+        outputs:
+            version: ${{ steps.extractversion.outputs.version }}
+        steps:
+            - name: Checkout
+              uses: actions/checkout@v1
+            - name: Set up .NET Core
+              uses: actions/setup-dotnet@v1
+              with:
+                  dotnet-version: "5.0.400"
+            - name: Extract version from Git
+              id: extractversion
+              run: echo "::set-output name=version::$(git describe)"
+
+    build:
+        name: Build release artifacts
+        needs: extract-version
+        runs-on: ubuntu-latest
         strategy:
             matrix:
                 targets:
@@ -21,32 +40,40 @@ jobs:
                         "win-arm",
                         "win-arm64",
                     ]
-        runs-on: ubuntu-latest
         steps:
-            - name: Checkout
-              uses: actions/checkout@v1
-            - name: Set up .NET Core
-              uses: actions/setup-dotnet@v1
-              with:
-                  dotnet-version: "5.0.400"
-            - name: Extract version from Git
-              run: echo "release_version=$(git describe)" >> $GITHUB_ENV
             - name: Publish .NET app
               env:
                   RID: ${{ matrix.targets }}
-              run: dotnet publish -c Release -r $RID --self-contained true -p:PublishSingleFile=true -p:Version=${{ env.release_version }} Cipolla.CLI/Cipolla.CLI.csproj
+                  VERSION: ${{ needs.extract_version.outputs.version }}
+              run: dotnet publish -c Release -r $RID --self-contained true -p:PublishSingleFile=true -p:Version=$VERSION Cipolla.CLI/Cipolla.CLI.csproj
             - name: Package assets
               env:
                   RID: ${{ matrix.targets }}
-                  RELEASEVERSION: ${{ env.release_version }}
-              run: zip -j "Cipolla.CLI/bin/cipolla-$RELEASEVERSION-$RID.zip" Cipolla.CLI/bin/Release/net5.0/$RID/publish/* -x "*.pdb"
+                  VERSION: ${{ needs.setup.outputs.version }}
+              run: |
+                  mkdir .artifacts
+                  zip -j ".artifacts/cipolla-$VERSION-$RID.zip" Cipolla.CLI/bin/Release/net5.0/$RID/publish/* -x "*.pdb"
             - name: Upload artifacts
               uses: actions/upload-artifact@v2
               with:
                   name: cipolla-${{ env.release_version }}-${{ matrix.targets }}.zip
                   path: "Cipolla.CLI/bin/cipolla-${{ env.release_version }}-${{ matrix.targets }}.zip"
+
+    publish:
+        name: Publish release
+        needs: build
+        runs-on: ubuntu-latest
+        steps:
+            - name: Create .artifacts dir
+              run: mkdir .artifacts
+            - uses: actions/download-artifact@v2
+              with:
+                  path: .artifacts
+            - name: Generate Changelog
+              run: git log --pretty="format:[%h] %s" $(git describe --tags --abbrev=0 @^)..@ > .artifacts/CHANGELOG.txt
             - name: Release
               uses: softprops/action-gh-release@v1
               if: startsWith(github.ref, 'refs/tags/')
               with:
-                  files: Cipolla.CLI/bin/*.zip
+                  files: ./artifacts/*.zip
+                  body_path: ./artifacts/CHANGELOG.txt
