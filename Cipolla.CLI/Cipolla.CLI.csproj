@@ -7,6 +7,7 @@
         <Nullable>enable</Nullable>
         <AssemblyName>cipolla</AssemblyName>
         <PublishTrimmed>true</PublishTrimmed>
+        <IncludeNativeLibrariesForSelfExtract>true</IncludeNativeLibrariesForSelfExtract>
     </PropertyGroup>
 
     <ItemGroup>
