@@ -59,7 +59,7 @@ jobs:
               uses: actions/upload-artifact@v2
               with:
                   name: cipolla-${{ needs.extractversion.outputs.version }}-${{ matrix.targets }}.zip
-                  path: "Cipolla.CLI/bin/cipolla-${{ needs.extractversion.outputs.version }}-${{ matrix.targets }}.zip"
+                  path: ".artifacts/cipolla-${{ needs.extractversion.outputs.version }}-${{ matrix.targets }}.zip"
 
     publish:
         name: Publish release
