@@ -8,13 +8,19 @@ namespace Cipolla.CLI.Models
     public class CliOptions
     {
         [Option('n', "num-instances", Default = 10, HelpText = "Number of Tor instances to launch")]
-        public int NumberOfInstances { get; set; }
+        public int NumberOfInstances { get; init; }
 
         [Option('p', "socks-port", Default = (ushort)9250, HelpText = "Starting port number for socks port")]
-        public ushort StartingSocksPort { get; set; }
+        public ushort StartingSocksPort { get; init; }
 
         [Option('d', "data-directory", HelpText = "Starting port number for control port")]
-        public string DataDirectory { get; set; } = Path.Combine(Path.GetTempPath(), "Cipolla");
+        public string DataDirectory { get; init; } = Path.Combine(Path.GetTempPath(), "Cipolla");
+
+        [Option('i', "interval", Default = 30, HelpText = "Instance check interval in seconds")]
+        public int CheckInterval { get; init; }
+
+        [Option('v', "verbose", Default = false, HelpText = "Makes logging output more verbose")]
+        public bool VerboseLogging { get; init; }
     }
 
     public static class CliOptionsExtensions

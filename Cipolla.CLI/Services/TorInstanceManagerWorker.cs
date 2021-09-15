@@ -30,13 +30,13 @@ namespace Cipolla.CLI.Services
 
             while (!cancellationToken.IsCancellationRequested)
             {
-                _logger.LogInformation("Checking for missing instances..");
+                _logger.LogDebug("Checking for missing instances..");
                 _instances.AddRange(CreateMissingTorInstances());
 
-                _logger.LogInformation("Checking for stopped instances..");
+                _logger.LogDebug("Checking for stopped instances..");
                 _instances.RemoveAll(x => !x.Task.Status.Equals(TaskStatus.Running));
 
-                await Task.Delay(TimeSpan.FromSeconds(5), cancellationToken);
+                await Task.Delay(TimeSpan.FromSeconds(_options.CheckInterval), cancellationToken);
             }
 
             return;

@@ -21,8 +21,6 @@ namespace Cipolla.CLI.Services
             _options = options;
             _applicationLifetime = applicationLifetime;
             _worker = worker;
-
-
         }
 
         public Task StartAsync(CancellationToken cancellationToken)

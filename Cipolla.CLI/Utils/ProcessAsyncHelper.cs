@@ -21,12 +21,12 @@ namespace Cipolla.CLI.Utils
 
             process.OutputDataReceived += (sender, e) =>
             {
-                if (!string.IsNullOrEmpty(e.Data)) logger.LogInformation(e.Data);
+                if (!string.IsNullOrEmpty(e.Data)) logger.LogDebug($"(STDOUT: {process.Id}) {e.Data}");
             };
 
             process.ErrorDataReceived += (sender, e) =>
             {
-                if (!string.IsNullOrEmpty(e.Data)) logger.LogError(e.Data);
+                if (!string.IsNullOrEmpty(e.Data)) logger.LogDebug($"(STDERR: {process.Id}) {e.Data}");
             };
 
             process.Exited += (sender, e) =>
