@@ -30,11 +30,12 @@ jobs:
                         "linux-musl-x64",
                         "linux-arm",
                         "linux-arm64",
-                        "osx-x64",
-                        "win-x64",
-                        "win-x86",
-                        "win-arm",
-                        "win-arm64",
+                        "osx.12-x64",
+                        "osx.12-arm64",
+                        "win10-x64",
+                        "win10-x86",
+                        "win10-arm",
+                        "win10-arm64",
                     ]
         steps:
             - name: Checkout
@@ -42,7 +43,7 @@ jobs:
             - name: Set up .NET Core
               uses: actions/setup-dotnet@v1
               with:
-                  dotnet-version: "5.0.400"
+                  dotnet-version: "7.0.100-rc.1.22431.12"
             - name: Publish .NET app
               env:
                   RID: ${{ matrix.targets }}
