@@ -1,7 +1,10 @@
 using System;
 using System.IO;
+using System.Net;
+using System.Net.Http;
 using System.Threading.Tasks;
 using Cipolla.CLI.Utils;
+using CliWrap;
 using Microsoft.Extensions.Logging;
 
 namespace Cipolla.CLI.Models
@@ -12,9 +15,9 @@ namespace Cipolla.CLI.Models
         public ushort SocksPort { get; init; }
         public ushort ControlPort { get; init; }
         public string InstanceDataPath { get; init; }
-        public Task Task { get; init; }
+        public CommandTask<CommandResult> Process { get; init; }
 
-        public TorInstance(ushort socksPort, ushort controlPort, string dataDirectory, ILogger logger)
+        public TorInstance(ushort socksPort, ushort controlPort, string dataDirectory, bool verboseLogging, ILogger logger)
         {
             Id = Guid.NewGuid();
             SocksPort = socksPort;
@@ -29,12 +32,17 @@ namespace Cipolla.CLI.Models
 
             File.WriteAllText(torConfigPath, torConfigContent);
 
-            Task = ProcessAsyncHelper.StartProcessAsync("tor", $"-f {torConfigFileName}", InstanceDataPath, logger);
+            Process = Cli.Wrap("tor")
+                    .WithArguments($"-f {torConfigFileName}")
+                    .WithWorkingDirectory(InstanceDataPath)
+                    .WithStandardOutputPipe(verboseLogging ? PipeTarget.ToStream(Console.OpenStandardOutput()) : PipeTarget.Null)
+                    .WithStandardErrorPipe(verboseLogging ? PipeTarget.ToStream(Console.OpenStandardError()) : PipeTarget.Null)
+                    .ExecuteAsync();
         }
 
         public void Dispose()
         {
-            Task.Dispose();
+            Process.Dispose();
             GC.SuppressFinalize(this);
         }
     }
