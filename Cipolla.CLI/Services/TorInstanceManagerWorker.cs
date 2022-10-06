@@ -30,11 +30,11 @@ namespace Cipolla.CLI.Services
 
             while (!cancellationToken.IsCancellationRequested)
             {
-                _logger.LogDebug("Checking for missing instances..");
-                _instances.AddRange(CreateMissingTorInstances());
-
                 _logger.LogDebug("Removing unhealthy instances..");
                 _instances.RemoveAll(x => x.Status == InstanceStatus.Unhealthy);
+
+                _logger.LogDebug("Checking for missing instances..");
+                _instances.AddRange(CreateMissingTorInstances());
 
                 _logger.LogDebug("Triggering instance self-checks..");
                 _instances.ForEach(x => Task.Run(x.CheckConnectivityAsyncCheckStatusAsync));
