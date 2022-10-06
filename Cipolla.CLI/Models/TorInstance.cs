@@ -1,7 +1,9 @@
 using System;
+using System.Collections.Generic;
 using System.IO;
 using System.Net;
 using System.Net.Http;
+using System.Threading;
 using System.Threading.Tasks;
 using Cipolla.CLI.Utils;
 using CliWrap;
@@ -11,7 +13,8 @@ namespace Cipolla.CLI.Models
 {
     public enum InstanceStatus
     {
-        Undetermined,
+        Starting,
+        Started,
         Healthy,
         Unhealthy
     }
@@ -24,7 +27,7 @@ namespace Cipolla.CLI.Models
         public ushort ControlPort { get; init; }
         public string InstanceDataPath { get; init; }
         public CommandTask<CommandResult> Process { get; init; }
-        public InstanceStatus Status { get; private set; } = InstanceStatus.Undetermined;
+        public InstanceStatus Status { get; private set; } = InstanceStatus.Starting;
 
         private ILogger Logger { get; init; }
 
@@ -47,16 +50,50 @@ namespace Cipolla.CLI.Models
             Process = Cli.Wrap("tor")
                     .WithArguments($"-f {torConfigFileName}")
                     .WithWorkingDirectory(InstanceDataPath)
-                    .WithStandardOutputPipe(verboseLogging ? PipeTarget.ToStream(Console.OpenStandardOutput()) : PipeTarget.Null)
-                    .WithStandardErrorPipe(verboseLogging ? PipeTarget.ToStream(Console.OpenStandardError()) : PipeTarget.Null)
+                    // .WithStandardOutputPipe(verboseLogging ? PipeTarget.ToStream(Console.OpenStandardOutput()) : PipeTarget.Null)
+                    // .WithStandardErrorPipe(verboseLogging ? PipeTarget.ToStream(Console.OpenStandardError()) : PipeTarget.Null)
                     .ExecuteAsync();
+
+            Task.Run(() => WaitForStartup());
         }
 
-        public async Task<bool> CheckConnectivityAsync()
+        private Task WaitForStartup()
+        {
+            return Task.Run(() =>
+            {
+                // TODO: add real ready check
+                Thread.Sleep(TimeSpan.FromSeconds(30));
+                Status = InstanceStatus.Healthy;
+            });
+        }
+
+        public async Task CheckConnectivityAsyncCheckStatusAsync()
+        {
+            var goodStatuses = new List<TaskStatus>() { TaskStatus.Running, TaskStatus.WaitingForActivation };
+
+            if (!goodStatuses.Contains(Process.Task.Status))
+            {
+                Status = InstanceStatus.Unhealthy;
+                return;
+            }
+
+            switch (Status)
+            {
+                case InstanceStatus.Started:
+                case InstanceStatus.Healthy:
+                    var isHealthy = await CheckConnectivityAsync();
+                    Status = isHealthy ? InstanceStatus.Healthy : InstanceStatus.Unhealthy;
+                    return;
+                default:
+                    break;
+            }
+        }
+
+        private async Task<bool> CheckConnectivityAsync()
         {
             var proxy = new WebProxy
             {
-                Address = new Uri($"socks5://127.0.0.1:{SocksPort}")
+                Address = new Uri($"socks5://localhost:{SocksPort}")
             };
 
             //proxy.Credentials = new NetworkCredential(); //Used to set Proxy logins. 
@@ -68,10 +105,10 @@ namespace Cipolla.CLI.Models
 
             try
             {
-                Logger.LogDebug("{instance} - IP: {data}", Id, await httpClient.GetStringAsync("https://icanhazip.com/"));
+                await httpClient.GetStringAsync("https://icanhazip.com/");
                 return true;
             }
-            catch
+            catch (Exception ex)
             {
                 return false;
             }
