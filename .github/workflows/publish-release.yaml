@@ -18,7 +18,9 @@ jobs:
                   fetch-depth: 0
             - name: Extract version from Git
               id: extractversion
-              run: echo "::set-output name=version::$(git describe)"
+              run: echo ::set-output name=version::${GITHUB_REF#refs/*/}
+            - name: Show Version
+              run: echo ${{ steps.vars.outputs.version }}
 
     build:
         name: Build release artifacts
