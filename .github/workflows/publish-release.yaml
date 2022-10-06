@@ -77,7 +77,7 @@ jobs:
               with:
                   path: .artifacts
             - name: Generate Changelog
-              run: git log --pretty="format:[%h] %s" $(git describe --tags --abbrev=0 @^)..@ > .artifacts/CHANGELOG.txt
+              run: git log --pretty="format:[%h] %s" $(git describe --tags --abbrev=0 HEAD^)..HEAD > .artifacts/CHANGELOG.txt
             - name: Release
               uses: softprops/action-gh-release@v1
               if: startsWith(github.ref, 'refs/tags/')
