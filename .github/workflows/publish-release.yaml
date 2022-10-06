@@ -13,7 +13,7 @@ jobs:
             version: ${{ steps.extractversion.outputs.version }}
         steps:
             - name: Checkout
-              uses: actions/checkout@v1
+              uses: actions/checkout@v3
             - name: Extract version from Git
               id: extractversion
               run: echo "::set-output name=version::$(git describe)"
@@ -39,9 +39,9 @@ jobs:
                     ]
         steps:
             - name: Checkout
-              uses: actions/checkout@v1
+              uses: actions/checkout@v3
             - name: Set up .NET Core
-              uses: actions/setup-dotnet@v1
+              uses: actions/setup-dotnet@v3
               with:
                   dotnet-version: "7.0.100-rc.1.22431.12"
             - name: Publish .NET app
@@ -68,7 +68,7 @@ jobs:
         runs-on: ubuntu-latest
         steps:
             - name: Checkout
-              uses: actions/checkout@v1
+              uses: actions/checkout@v3
             - name: Create .artifacts dir
               run: mkdir .artifacts
             - uses: actions/download-artifact@v2
