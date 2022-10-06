@@ -6,7 +6,8 @@
         <CheckForOverflowUnderflow>true</CheckForOverflowUnderflow>
         <Nullable>enable</Nullable>
         <AssemblyName>cipolla</AssemblyName>
-        <!-- <PublishTrimmed>true</PublishTrimmed> -->
+        <PublishTrimmed>true</PublishTrimmed>
+        <TrimMode>partial</TrimMode>
         <IncludeNativeLibrariesForSelfExtract>true</IncludeNativeLibrariesForSelfExtract>
     </PropertyGroup>
 
