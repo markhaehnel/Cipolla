@@ -57,7 +57,7 @@ jobs:
                   VERSION: ${{ needs.extractversion.outputs.version }}
               run: |
                   mkdir .artifacts
-                  zip -j ".artifacts/cipolla-$VERSION-$RID.zip" Cipolla.CLI/bin/Release/net5.0/$RID/publish/* -x "*.pdb"
+                  zip -j ".artifacts/cipolla-$VERSION-$RID.zip" Cipolla.CLI/bin/Release/net7.0/$RID/publish/* -x "*.pdb"
             - name: Upload artifacts
               uses: actions/upload-artifact@v2
               with:
