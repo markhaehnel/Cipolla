@@ -1,5 +1,7 @@
 # Cipolla
 
+> This repository is no longer maintained. Please use it's successor [cipolla-rs](https://github.com/markhaehnel/cipolla-rs) instead.
+
 Runs multiple Tor SOCKS5 proxy instances on your machine.
 
 ## Installation
